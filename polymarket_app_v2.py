@@ -70,6 +70,100 @@ h1,h2,h3,h4 { color:#e0e6ef; }
 </style>
 """, unsafe_allow_html=True)
 
+
+# ─────────────────────────────────────────────────────────────────────────────
+#  DATE EXTRACTION FROM MARKET TITLE
+# ─────────────────────────────────────────────────────────────────────────────
+_MONTHS = {
+    "january":1,"jan":1,"february":2,"feb":2,"march":3,"mar":3,
+    "april":4,"apr":4,"may":5,"june":6,"jun":6,
+    "july":7,"jul":7,"august":8,"aug":8,"september":9,"sep":9,"sept":9,
+    "october":10,"oct":10,"november":11,"nov":11,"december":12,"dec":12,
+}
+
+def extract_date_from_title(text):
+    """Extrai data do título do mercado via regex. Fallback para process_market."""
+    import calendar as _cal
+    t = text.lower()
+    now = datetime.now(timezone.utc)
+    cy = now.year
+
+    # "end of Month [Year]"
+    m = re.search(r'end of\s+([a-z]+)(?:\s+(20\d{2}))?', t)
+    if m:
+        mn, yr = m.group(1), int(m.group(2)) if m.group(2) else cy
+        if mn in _MONTHS:
+            try:
+                ld = _cal.monthrange(yr, _MONTHS[mn])[1]
+                dt = datetime(yr, _MONTHS[mn], ld, tzinfo=timezone.utc)
+                return dt if dt >= now else datetime(yr+1, _MONTHS[mn], ld, tzinfo=timezone.utc)
+            except: pass
+
+    # "Month Day Year"
+    m = re.search(r'\b([a-z]+)\s+(\d{1,2})(?:st|nd|rd|th)?,?\s*(20\d{2})', t)
+    if m:
+        mn, dy, yr = m.group(1), int(m.group(2)), int(m.group(3))
+        if mn in _MONTHS:
+            try: return datetime(yr, _MONTHS[mn], dy, tzinfo=timezone.utc)
+            except: pass
+
+    # "by/before/until/on Month Day"
+    m = re.search(r'\b(?:by|before|until|on)\s+([a-z]+)\s+(\d{1,2})(?:st|nd|rd|th)?', t)
+    if m:
+        mn, dy = m.group(1), int(m.group(2))
+        if mn in _MONTHS:
+            try:
+                dt = datetime(cy, _MONTHS[mn], dy, tzinfo=timezone.utc)
+                return dt if dt >= now else datetime(cy+1, _MONTHS[mn], dy, tzinfo=timezone.utc)
+            except: pass
+
+    # "Month Day" simples
+    m = re.search(r'\b([a-z]+)\s+(\d{1,2})(?:st|nd|rd|th)?(?=[^0-9]|$)', t)
+    if m:
+        mn, dy = m.group(1), int(m.group(2))
+        if mn in _MONTHS and 1 <= dy <= 31:
+            try:
+                dt = datetime(cy, _MONTHS[mn], dy, tzinfo=timezone.utc)
+                return dt if dt >= now else datetime(cy+1, _MONTHS[mn], dy, tzinfo=timezone.utc)
+            except: pass
+
+    # DD/MM/YYYY ou MM/DD/YYYY
+    m = re.search(r'\b(\d{1,2})[/\-](\d{1,2})[/\-](20\d{2})\b', t)
+    if m:
+        a, b, yr = int(m.group(1)), int(m.group(2)), int(m.group(3))
+        for mo, dy in [(b,a),(a,b)]:
+            if 1<=mo<=12 and 1<=dy<=31:
+                try: return datetime(yr, mo, dy, tzinfo=timezone.utc)
+                except: pass
+
+    # Q1/Q2/Q3/Q4 [Year]
+    m = re.search(r'\bq([1-4])\s*(20\d{2})?\b', t)
+    if m:
+        q, yr = int(m.group(1)), int(m.group(2)) if m.group(2) else cy
+        em = q * 3
+        try:
+            ld = _cal.monthrange(yr, em)[1]
+            return datetime(yr, em, ld, tzinfo=timezone.utc)
+        except: pass
+
+    # "Month Year"
+    m = re.search(r'\b([a-z]+)\s+(20\d{2})\b', t)
+    if m:
+        mn, yr = m.group(1), int(m.group(2))
+        if mn in _MONTHS:
+            try:
+                ld = _cal.monthrange(yr, _MONTHS[mn])[1]
+                return datetime(yr, _MONTHS[mn], ld, tzinfo=timezone.utc)
+            except: pass
+
+    # só ano
+    m = re.search(r'\b(20\d{2})\b', t)
+    if m:
+        try: return datetime(int(m.group(1)), 12, 31, tzinfo=timezone.utc)
+        except: pass
+
+    return None
+
 # ─────────────────────────────────────────────────────────────────────────────
 #  CONSTANTS
 # ─────────────────────────────────────────────────────────────────────────────
@@ -92,13 +186,6 @@ REC_PILLS = {
     "BUY NO":  ('<span class="pill-red">🔴 BUY NO</span>',   "rec-box-red"),
     "WATCH":   ('<span class="pill-yellow">🟡 WATCH</span>',  "rec-box-yellow"),
     "AVOID":   ('<span class="pill-grey">⚫ AVOID</span>',    "rec-box-grey"),
-}
-# Plain labels for st.expander (no HTML allowed in labels)
-REC_LABEL = {
-    "BUY YES": "🟢 BUY YES",
-    "BUY NO":  "🔴 BUY NO",
-    "WATCH":   "🟡 WATCH",
-    "AVOID":   "⚫ AVOID",
 }
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -131,11 +218,6 @@ def extract_keywords(question, n=5):
     words = re.findall(r"\b[a-zA-Z]{3,}\b", question)
     filtered = [w for w in words if w.lower() not in stopwords]
     return " ".join(filtered[:n])
-
-def fmt_vol(v):
-    if v >= 1e6: return f"${v/1e6:.1f}m"
-    if v >= 1e3: return f"${v/1e3:.0f}k"
-    return f"${v:.0f}"
 
 def win_rate_color(p):
     if p >= 65: return "#06d6a0"
@@ -184,18 +266,34 @@ def generate_recommendation(yes_p, spread, vol24, liq, p1d, p1w):
 #  DATA FETCHING
 # ─────────────────────────────────────────────────────────────────────────────
 @st.cache_data(ttl=300, show_spinner=False)
-def fetch_markets_raw(limit=100):
-    try:
-        r = requests.get(GAMMA_API, params={
-            "active":"true","closed":"false",
-            "limit":limit,"offset":0,
-            "order":"volume24hr","ascending":"false"
-        }, timeout=15)
-        r.raise_for_status()
-        return r.json()
-    except Exception as e:
-        st.error(f"Erro API Polymarket: {e}")
-        return []
+def fetch_markets_raw(limit=500, max_pages=4):
+    """Busca até max_pages*limit mercados com paginação."""
+    all_markets = []
+    seen_ids = set()
+    for page in range(max_pages):
+        try:
+            r = requests.get(GAMMA_API, params={
+                "active": "true", "closed": "false",
+                "limit":  limit,
+                "offset": page * limit,
+                "order":  "volume24hr",
+                "ascending": "false"
+            }, timeout=15)
+            r.raise_for_status()
+            data = r.json()
+            if not data:
+                break  # Sem mais resultados
+            # Deduplicar já aqui pelo id do mercado
+            new = [m for m in data if m.get("id") not in seen_ids]
+            seen_ids.update(m.get("id") for m in new)
+            all_markets.extend(new)
+            if len(data) < limit:
+                break  # Última página
+        except Exception as e:
+            if page == 0:
+                st.error(f"Erro API Polymarket: {e}")
+            break
+    return all_markets
 
 @st.cache_data(ttl=900, show_spinner=False)
 def fetch_news(keywords, timespan="3d", n=6):
@@ -269,14 +367,20 @@ def process_market(m):
 
         rec, rec_reason = generate_recommendation(yes_p, spread, vol24, liq, p1d, p1w)
 
-        # Days to resolution
+        # Days to resolution — API field primeiro, depois regex no título
         days_left = None
         try:
-            end_iso = m.get("endDateIso","")
+            end_iso = m.get("endDateIso","") or m.get("endDate","")
             if end_iso:
                 end_dt = datetime.fromisoformat(end_iso.replace("Z","+00:00"))
                 days_left = (end_dt - datetime.now(timezone.utc)).days
         except: pass
+        if days_left is None:
+            try:
+                dt_from_title = extract_date_from_title(question)
+                if dt_from_title:
+                    days_left = (dt_from_title - datetime.now(timezone.utc)).days
+            except: pass
 
         return {
             "id":              m.get("id",""),
@@ -308,9 +412,15 @@ def process_market(m):
 
 @st.cache_data(ttl=300, show_spinner=False)
 def load_all_markets():
-    raw = fetch_markets_raw(100)
+    raw = fetch_markets_raw()
     rows = [process_market(m) for m in raw]
-    return pd.DataFrame([r for r in rows if r is not None])
+    df = pd.DataFrame([r for r in rows if r is not None])
+    if not df.empty:
+        # Remover duplicados pelo id e pela question
+        df = df.drop_duplicates(subset=["id"])
+        df = df.drop_duplicates(subset=["question"])
+        df = df.reset_index(drop=True)
+    return df
 
 # ─────────────────────────────────────────────────────────────────────────────
 #  CHARTS
@@ -404,14 +514,13 @@ def chart_winrate_distribution(df):
 # ─────────────────────────────────────────────────────────────────────────────
 def render_market(row):
     pill_html, box_cls = REC_PILLS.get(row["recommendation"], REC_PILLS["AVOID"])
-    rec_label = REC_LABEL.get(row["recommendation"], "⚫ AVOID")
     wr = row["win_rate"] or 50
     wr_bar_color = win_rate_color(wr)
     wr_pct = min(100, max(0, wr))
 
     label = (
-        f"{rec_label}  ·  {row['question'][:80]}{'…' if len(row['question'])>80 else ''}  "
-        f"— YES {row['yes_prob']:.0f}%  ·  {fmt_vol(row['volume24h'])}  ·  {row['category']}"
+        f"{pill_html}  **{row['question'][:80]}{'…' if len(row['question'])>80 else ''}**  "
+        f"— YES {row['yes_prob']:.0f}%  ·  Vol ${row['volume24h']:,.0f}  ·  {row['category']}"
     )
     with st.expander(label, expanded=False):
 

@@ -518,10 +518,11 @@ def render_market(row):
     wr_bar_color = win_rate_color(wr)
     wr_pct = min(100, max(0, wr))
 
-    label = (
-        f"{pill_html}  **{row['question'][:80]}{'…' if len(row['question'])>80 else ''}**  "
-        f"— YES {row['yes_prob']:.0f}%  ·  Vol ${row['volume24h']:,.0f}  ·  {row['category']}"
-    )
+    rec = row["recommendation"]
+    emoji_label = {"BUY YES":"🟢","BUY NO":"🔴","WATCH":"🟡","AVOID":"⚫"}.get(rec,"⚫")
+    q_short = row['question'][:80] + ('…' if len(row['question']) > 80 else '')
+    vol_fmt = f"${row['volume24h']/1e6:.1f}m" if row['volume24h'] >= 1e6 else f"${row['volume24h']/1e3:.0f}k"
+    label = f"{emoji_label} {q_short}  —  YES {row['yes_prob']:.0f}%  ·  Vol {vol_fmt}  ·  {row['category']}"
     with st.expander(label, expanded=False):
 
         # ── Métricas ────────────────────────────────────────────────────────

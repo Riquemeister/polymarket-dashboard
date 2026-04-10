@@ -728,18 +728,48 @@ ajustada para momentum e eficiência
         f"📋 Todos ({len(flt)})",
     ])
 
-    for tab, rec in zip([tab_yes, tab_no, tab_watch, tab_avoid], ["BUY YES","BUY NO","WATCH","AVOID"]):
-        with tab:
-            sub = flt[flt["recommendation"] == rec]
-            if sub.empty:
-                st.info("Nenhum mercado com estes filtros.")
-            else:
-                for _, row in sub.head(25).iterrows():
-                    render_market(row)
+    PAGE_SIZE = 15  # resultados por página
 
-    with tab_all:
-        for _, row in flt.head(50).iterrows():
-            render_market(row)
+    # Inicializar contadores de paginação no session_state
+    for tab_key in ["yes","no","watch","avoid","all"]:
+        sk = f"page_{tab_key}"
+        if sk not in st.session_state:
+            st.session_state[sk] = PAGE_SIZE
+
+    # Resetar paginação quando os filtros mudam
+    filter_key = f"{sel_cat}_{sel_rec}_{min_vol}_{max_spr}_{min_qs}_{min_wr}"
+    if st.session_state.get("_last_filter") != filter_key:
+        for tab_key in ["yes","no","watch","avoid","all"]:
+            st.session_state[f"page_{tab_key}"] = PAGE_SIZE
+        st.session_state["_last_filter"] = filter_key
+
+    def render_tab(tab_obj, sub_df, state_key):
+        with tab_obj:
+            if sub_df.empty:
+                st.info("Nenhum mercado com estes filtros.")
+                return
+            n_show  = st.session_state[state_key]
+            visible = sub_df.head(n_show)
+            total   = len(sub_df)
+            for _, row in visible.iterrows():
+                render_market(row)
+            if n_show < total:
+                remaining = min(PAGE_SIZE, total - n_show)
+                if st.button(
+                    f"Ver mais {remaining} resultados  ({n_show}/{total})",
+                    key=f"btn_{state_key}",
+                    use_container_width=True
+                ):
+                    st.session_state[state_key] += PAGE_SIZE
+                    st.rerun()
+            else:
+                st.caption(f"✓ Todos os {total} mercados apresentados.")
+
+    render_tab(tab_yes,   flt[flt["recommendation"]=="BUY YES"], "page_yes")
+    render_tab(tab_no,    flt[flt["recommendation"]=="BUY NO"],  "page_no")
+    render_tab(tab_watch, flt[flt["recommendation"]=="WATCH"],   "page_watch")
+    render_tab(tab_avoid, flt[flt["recommendation"]=="AVOID"],   "page_avoid")
+    render_tab(tab_all,   flt,                                    "page_all")
 
     # ── Export ────────────────────────────────────────────────────────────────
     st.markdown("---")

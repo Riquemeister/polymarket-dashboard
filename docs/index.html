@@ -6,163 +6,80 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="PolyRique">
+<meta name="theme-color" content="#07090f">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon.png">
 <title>PolyRique</title>
 <style>
-* { margin:0; padding:0; box-sizing:border-box; }
+  :root{
+    --bg:#07090f; --panel:#0d1017; --panel2:#111520; --line:#1c2333;
+    --text:#e8ecf4; --muted:#6b7a99; --green:#22c55e; --red:#ef4444; --amber:#f59e0b; --blue:#3b82f6;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{width:100%;height:100%;background:var(--bg);overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,'Inter',sans-serif}
+  body{position:fixed;inset:0;color:var(--text)}
+  .app{position:fixed;inset:0;display:flex;flex-direction:column;background:var(--bg)}
 
-html, body {
-  width:100%; height:100%;
-  background:#0a0f1e;
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif;
-  overflow: hidden;
-  padding-top: env(safe-area-inset-top);
-  padding-bottom: env(safe-area-inset-bottom);
-}
+  .topbar{
+    height:58px; padding:0 14px; padding-top:env(safe-area-inset-top);
+    display:flex;align-items:center;justify-content:space-between;
+    background:linear-gradient(180deg, rgba(13,16,23,.98), rgba(13,16,23,.92));
+    border-bottom:1px solid rgba(28,35,51,.95);
+    box-shadow:0 8px 28px rgba(0,0,0,.22);
+    flex:0 0 auto;
+  }
+  .brand{display:flex;align-items:center;gap:10px;font-size:15px;font-weight:800;letter-spacing:-.3px}
+  .brand img{width:28px;height:28px;border-radius:8px;box-shadow:0 0 0 1px rgba(255,255,255,.04),0 10px 24px rgba(34,197,94,.12)}
+  .brand span{color:var(--green)}
+  .brand-sub{font-size:11px;font-weight:600;color:var(--muted);margin-top:1px}
+  .brand-wrap{display:flex;flex-direction:column;line-height:1.05}
 
-#splash {
-  position: fixed; inset: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 18px;
-  background: linear-gradient(170deg, #0a0f1e 0%, #0d1a35 50%, #0a1428 100%);
-}
+  .actions{display:flex;align-items:center;gap:8px}
+  .live{
+    display:inline-flex;align-items:center;gap:7px;
+    background:rgba(17,21,32,.95); border:1px solid rgba(28,35,51,.95);
+    padding:6px 10px;border-radius:999px;font-size:11px;font-weight:700;color:var(--muted)
+  }
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 0 4px rgba(34,197,94,.12);animation:pulse 1.6s ease-in-out infinite}
+  @keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(.7);opacity:.55}}
 
-.icon-wrap {
-  width: 110px; height: 110px;
-  border-radius: 26px;
-  overflow: hidden;
-  box-shadow: 0 0 40px rgba(17,138,178,0.5);
-  animation: pulse 2s ease-in-out infinite;
-}
-.icon-wrap img { width: 100%; height: 100%; display: block; }
+  .open-btn{
+    display:inline-flex;align-items:center;gap:7px;
+    background:linear-gradient(135deg,#118ab2,#06d6a0);
+    color:#fff;border:none;border-radius:999px;
+    padding:9px 14px;font-size:11px;font-weight:800;cursor:pointer;
+    box-shadow:0 10px 28px rgba(17,138,178,.28);
+  }
+  .open-btn:active{transform:scale(.98)}
 
-@keyframes pulse {
-  0%, 100% { box-shadow: 0 0 30px rgba(17,138,178,0.4); transform: scale(1); }
-  50%       { box-shadow: 0 0 55px rgba(6,214,160,0.6);  transform: scale(1.04); }
-}
-
-.title {
-  font-size: 1.9rem;
-  font-weight: 800;
-  color: #ffffff;
-  letter-spacing: -0.5px;
-}
-
-.subtitle {
-  font-size: 0.82rem;
-  color: #4a6080;
-  text-align: center;
-  line-height: 1.6;
-}
-
-.bar-wrap {
-  width: 200px; height: 3px;
-  background: #1a2a3a;
-  border-radius: 3px;
-  overflow: hidden;
-  margin-top: 4px;
-}
-.bar {
-  height: 3px; width: 0%;
-  background: linear-gradient(90deg, #118ab2, #06d6a0);
-  border-radius: 3px;
-  transition: width 0.4s ease;
-}
-
-.bar-text {
-  font-size: 0.72rem;
-  color: #2a3f55;
-  margin-top: 6px;
-  text-align: center;
-  min-height: 18px;
-}
-
-.btn {
-  background: linear-gradient(135deg, #118ab2, #06d6a0);
-  color: #fff;
-  border: none;
-  border-radius: 16px;
-  padding: 14px 36px;
-  font-size: 0.95rem;
-  font-weight: 700;
-  cursor: pointer;
-  margin-top: 8px;
-  box-shadow: 0 4px 20px rgba(17,138,178,0.4);
-  opacity: 0;
-  transform: translateY(10px);
-  transition: opacity 0.4s ease, transform 0.4s ease;
-  -webkit-tap-highlight-color: transparent;
-}
-.btn.visible { opacity: 1; transform: translateY(0); }
-.btn:active  { transform: scale(0.97); }
-
-.version {
-  position: fixed;
-  bottom: calc(14px + env(safe-area-inset-bottom));
-  font-size: 0.6rem;
-  color: #1a2535;
-  text-align: center;
-  width: 100%;
-}
+  .iframe-wrap{flex:1 1 auto; position:relative; min-height:0; background:var(--bg)}
+  iframe{position:absolute; inset:0; width:100%; height:100%; border:0; background:var(--bg)}
+  .footer-glow{
+    position:absolute; left:50%; transform:translateX(-50%);
+    bottom:12px; font-size:10px; color:rgba(255,255,255,.18);
+    letter-spacing:.3px; pointer-events:none; user-select:none;
+  }
 </style>
 </head>
 <body>
-
-<div id="splash">
-  <div class="icon-wrap">
-    <img src="icon.png" alt="PolyRique">
+  <div class="app">
+    <div class="topbar">
+      <div class="brand">
+        <img src="icon.png" alt="PolyRique">
+        <div class="brand-wrap">
+          <div>Poly<span>Rique</span></div>
+          <div class="brand-sub">Intelligence Dashboard</div>
+        </div>
+      </div>
+      <div class="actions">
+        <div class="live"><span class="dot"></span> LIVE</div>
+        <button class="open-btn" onclick="window.open('https://polymarket-rique.streamlit.app','_blank')">Abrir app ↗</button>
+      </div>
+    </div>
+    <div class="iframe-wrap">
+      <iframe src="https://polymarket-rique.streamlit.app" allow="clipboard-read; clipboard-write"></iframe>
+      <div class="footer-glow">PolyRique Intelligence</div>
+    </div>
   </div>
-
-  <div class="title">PolyRique</div>
-  <div class="subtitle">Polymarket Intelligence Dashboard<br>Dados · Análise IA · Notícias</div>
-
-  <div>
-    <div class="bar-wrap"><div class="bar" id="bar"></div></div>
-    <div class="bar-text" id="bar-text">A iniciar…</div>
-  </div>
-
-  <button class="btn" id="btn" onclick="goNow()">Abrir Dashboard →</button>
-</div>
-
-<div class="version">PolyRique v1.0 · riquemeister.github.io</div>
-
-<script>
-  // ── Substitui pelo teu URL do Streamlit ────────────────────────────
-  const APP_URL = "https://polymarket-dashboard-djtge9o32qqxzyyz9plbe9.streamlit.app";
-  // ──────────────────────────────────────────────────────────────────
-
-  const bar     = document.getElementById("bar");
-  const barText = document.getElementById("bar-text");
-  const btn     = document.getElementById("btn");
-
-  const steps = [
-    [20,  500,  "A verificar ligação…"],
-    [45,  1100, "A carregar mercados…"],
-    [68,  2000, "A preparar análise IA…"],
-    [85,  3000, "Quase pronto…"],
-    [100, 3800, "Pronto! ✓"],
-  ];
-
-  steps.forEach(([pct, delay, text]) => {
-    setTimeout(() => {
-      bar.style.width = pct + "%";
-      barText.textContent = text;
-    }, delay);
-  });
-
-  // Botão aparece ao 1.5s
-  setTimeout(() => btn.classList.add("visible"), 1500);
-
-  // Redirect automático ao 4.5s
-  setTimeout(goNow, 4500);
-
-  function goNow() {
-    window.location.href = APP_URL;
-  }
-</script>
 </body>
 </html>

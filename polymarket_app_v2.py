@@ -416,9 +416,17 @@ def load_all_markets():
     rows = [process_market(m) for m in raw]
     df = pd.DataFrame([r for r in rows if r is not None])
     if not df.empty:
-        # Remover duplicados pelo id e pela question
+        # Remover duplicados
         df = df.drop_duplicates(subset=["id"])
         df = df.drop_duplicates(subset=["question"])
+        # Filtrar mercados expirados:
+        # 1. days_left negativo (data já passou)
+        # 2. Probabilidade extrema (>= 99% ou <= 1%) — mercado praticamente resolvido
+        # 3. Sem volume nas últimas 24h (inativo)
+        mask_expired  = df["days_left"].notna() & (df["days_left"] < 0)
+        mask_resolved = df["yes_prob"].notna() & ((df["yes_prob"] >= 99) | (df["yes_prob"] <= 1))
+        mask_inactive = df["volume24h"] == 0
+        df = df[~mask_expired & ~mask_resolved & ~mask_inactive]
         df = df.reset_index(drop=True)
     return df
 

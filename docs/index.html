@@ -5,137 +5,164 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Polymarket">
+<meta name="apple-mobile-web-app-title" content="PolyRique">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon.png">
-<title>PolyDash - by Riquemeister</title>
+<title>PolyRique</title>
 <style>
-  *{margin:0;padding:0;box-sizing:border-box}
-  html,body{
-    width:100%;height:100%;
-    background:#0a1628;
-    font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Roboto,sans-serif;
-    overflow:hidden;
-    padding-top:env(safe-area-inset-top);
-    padding-bottom:env(safe-area-inset-bottom);
-  }
+* { margin:0; padding:0; box-sizing:border-box; }
 
-  /* SPLASH */
-  #splash{
-    position:fixed;inset:0;
-    background:linear-gradient(160deg,#0a1628 0%,#0d2040 55%,#0a1a30 100%);
-    display:flex;flex-direction:column;align-items:center;justify-content:center;
-    gap:22px;
-  }
+html, body {
+  width:100%; height:100%;
+  background:#0a0f1e;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif;
+  overflow: hidden;
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+}
 
-  .logo-wrap{
-    width:100px;height:100px;border-radius:24px;
-    background:linear-gradient(135deg,#118ab2 0%,#06d6a0 100%);
-    display:flex;align-items:center;justify-content:center;
-    font-size:52px;
-    box-shadow:0 8px 40px #118ab260;
-    animation:pulse 2.2s ease-in-out infinite;
-  }
-  @keyframes pulse{
-    0%,100%{box-shadow:0 8px 40px #118ab240;transform:scale(1)}
-    50%{box-shadow:0 12px 56px #118ab280;transform:scale(1.04)}
-  }
+#splash {
+  position: fixed; inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  background: linear-gradient(170deg, #0a0f1e 0%, #0d1a35 50%, #0a1428 100%);
+}
 
-  .app-name{font-size:1.7rem;font-weight:800;color:#e0e6ef;letter-spacing:-.5px;text-align:center}
-  .app-sub{font-size:.82rem;color:#556688;text-align:center;line-height:1.6}
+.icon-wrap {
+  width: 110px; height: 110px;
+  border-radius: 26px;
+  overflow: hidden;
+  box-shadow: 0 0 40px rgba(17,138,178,0.5);
+  animation: pulse 2s ease-in-out infinite;
+}
+.icon-wrap img { width: 100%; height: 100%; display: block; }
 
-  /* BARRA DE PROGRESSO */
-  .progress-wrap{width:200px;height:3px;background:#1a2a3a;border-radius:3px;overflow:hidden;margin-top:4px}
-  .progress-bar{
-    height:3px;width:0%;border-radius:3px;
-    background:linear-gradient(90deg,#118ab2,#06d6a0);
-    transition:width .1s linear;
-  }
-  .progress-text{font-size:.7rem;color:#334466;margin-top:6px;text-align:center;min-height:16px}
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 30px rgba(17,138,178,0.4); transform: scale(1); }
+  50%       { box-shadow: 0 0 55px rgba(6,214,160,0.6);  transform: scale(1.04); }
+}
 
-  /* BOTÃO MANUAL (caso o redirect automático não funcione) */
-  .open-btn{
-    background:linear-gradient(135deg,#118ab2,#06d6a0);
-    color:#fff;border:none;border-radius:16px;
-    padding:15px 40px;font-size:1rem;font-weight:700;
-    cursor:pointer;box-shadow:0 4px 24px #118ab250;
-    -webkit-tap-highlight-color:transparent;
-    display:none;margin-top:12px;animation:fadeIn .4s ease forwards;
-  }
-  .open-btn:active{transform:scale(.97);transition:transform .1s}
+.title {
+  font-size: 1.9rem;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -0.5px;
+}
 
-  @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-  .version{position:fixed;bottom:calc(16px + env(safe-area-inset-bottom));
-    font-size:.62rem;color:#1e2a3a;text-align:center;width:100%}
+.subtitle {
+  font-size: 0.82rem;
+  color: #4a6080;
+  text-align: center;
+  line-height: 1.6;
+}
+
+.bar-wrap {
+  width: 200px; height: 3px;
+  background: #1a2a3a;
+  border-radius: 3px;
+  overflow: hidden;
+  margin-top: 4px;
+}
+.bar {
+  height: 3px; width: 0%;
+  background: linear-gradient(90deg, #118ab2, #06d6a0);
+  border-radius: 3px;
+  transition: width 0.4s ease;
+}
+
+.bar-text {
+  font-size: 0.72rem;
+  color: #2a3f55;
+  margin-top: 6px;
+  text-align: center;
+  min-height: 18px;
+}
+
+.btn {
+  background: linear-gradient(135deg, #118ab2, #06d6a0);
+  color: #fff;
+  border: none;
+  border-radius: 16px;
+  padding: 14px 36px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 8px;
+  box-shadow: 0 4px 20px rgba(17,138,178,0.4);
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn.visible { opacity: 1; transform: translateY(0); }
+.btn:active  { transform: scale(0.97); }
+
+.version {
+  position: fixed;
+  bottom: calc(14px + env(safe-area-inset-bottom));
+  font-size: 0.6rem;
+  color: #1a2535;
+  text-align: center;
+  width: 100%;
+}
 </style>
 </head>
 <body>
+
 <div id="splash">
-  <div class="logo-wrap">📈</div>
+  <div class="icon-wrap">
+    <img src="icon.png" alt="PolyRique">
+  </div>
+
+  <div class="title">PolyRique</div>
+  <div class="subtitle">Polymarket Intelligence Dashboard<br>Dados · Análise IA · Notícias</div>
+
   <div>
-    <div class="app-name">Polymarket</div>
-    <div class="app-sub">Intelligence Dashboard<br>Dados · Análise IA · Notícias</div>
+    <div class="bar-wrap"><div class="bar" id="bar"></div></div>
+    <div class="bar-text" id="bar-text">A iniciar…</div>
   </div>
-  <div style="text-align:center">
-    <div class="progress-wrap"><div class="progress-bar" id="bar"></div></div>
-    <div class="progress-text" id="msg">A preparar…</div>
-  </div>
-  <button class="open-btn" id="btn" onclick="goNow()">Abrir Dashboard →</button>
+
+  <button class="btn" id="btn" onclick="goNow()">Abrir Dashboard →</button>
 </div>
 
-<div class="version">PolyDash v1.0</div>
+<div class="version">PolyRique v1.0 · riquemeister.github.io</div>
 
 <script>
-  // ─── URL DO TEU STREAMLIT (substitui pelo teu link real) ─────────────────
-  const APP_URL = 'https://polymarket-dashboard-djtge9o32qqxzyyz9plbe9.streamlit.app';
-  // ─────────────────────────────────────────────────────────────────────────
+  // ── Substitui pelo teu URL do Streamlit ────────────────────────────
+  const APP_URL = "https://polymarket-dashboard-djtge9o32qqxzyyz9plbe9.streamlit.app";
+  // ──────────────────────────────────────────────────────────────────
 
-  const bar = document.getElementById('bar');
-  const msg = document.getElementById('msg');
-  const btn = document.getElementById('btn');
+  const bar     = document.getElementById("bar");
+  const barText = document.getElementById("bar-text");
+  const btn     = document.getElementById("btn");
 
   const steps = [
-    [15,  400, 'A verificar ligação…'],
-    [35,  900, 'A carregar mercados…'],
-    [60, 1700, 'A preparar análise IA…'],
-    [80, 2800, 'Quase pronto…'],
-    [100,3800, 'Pronto! Abre o dashboard ↓'],
+    [20,  500,  "A verificar ligação…"],
+    [45,  1100, "A carregar mercados…"],
+    [68,  2000, "A preparar análise IA…"],
+    [85,  3000, "Quase pronto…"],
+    [100, 3800, "Pronto! ✓"],
   ];
 
   steps.forEach(([pct, delay, text]) => {
     setTimeout(() => {
-      bar.style.width = pct + '%';
-      msg.textContent = text;
+      bar.style.width = pct + "%";
+      barText.textContent = text;
     }, delay);
   });
 
-  // Mostrar botão após 1.2s
-  setTimeout(() => { btn.style.display = 'block'; }, 1200);
+  // Botão aparece ao 1.5s
+  setTimeout(() => btn.classList.add("visible"), 1500);
 
-  // Redirect automático após 4.5s (tempo suficiente para ver tudo)
+  // Redirect automático ao 4.5s
   setTimeout(goNow, 4500);
 
   function goNow() {
     window.location.href = APP_URL;
   }
-
-  // Gerar ícone via canvas para apple-touch-icon
-  try {
-    const c = document.createElement('canvas');
-    c.width = c.height = 180;
-    const ctx = c.getContext('2d');
-    const g = ctx.createLinearGradient(0,0,180,180);
-    g.addColorStop(0,'#118ab2'); g.addColorStop(1,'#06d6a0');
-    ctx.fillStyle = g;
-    ctx.beginPath();
-    ctx.roundRect(0,0,180,180,40);
-    ctx.fill();
-    ctx.font = '90px serif';
-    ctx.textAlign='center'; ctx.textBaseline='middle';
-    ctx.fillText('📈',90,95);
-    const link = document.querySelector('link[rel="apple-touch-icon"]');
-    if(link) link.href = c.toDataURL('image/png');
-  } catch(e){}
 </script>
 </body>
 </html>

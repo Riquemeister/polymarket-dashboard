@@ -22,10 +22,10 @@ import re, time
 #  PAGE CONFIG
 # ─────────────────────────────────────────────────────────────────────────────
 st.set_page_config(
-    page_title="PolyRique Intelligence",
+    page_title="Polymarket Intelligence",
     page_icon="📈",
     layout="wide",
-    initial_sidebar_state="collapsed",
+    initial_sidebar_state="expanded",
 )
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -33,86 +33,40 @@ st.set_page_config(
 # ─────────────────────────────────────────────────────────────────────────────
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
-*, body, .stApp, .main {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
-    background-color: #07090f !important;
-    color: #e8ecf4 !important;
-}
-.block-container { padding-top: 1rem !important; max-width: 1400px; }
+body, .stApp, .main { background-color: #0a1628 !important; color: #e0e6ef; }
+.block-container { padding-top: 1.2rem; max-width: 1400px; }
 
-/* KPI CARDS */
 .kpi-card {
-    background: #0d1017;
-    border: 1px solid #1c2333;
-    border-radius: 10px;
-    padding: 14px 16px;
-    text-align: left;
+    background: linear-gradient(135deg, #0d1b2a 0%, #132036 100%);
+    border: 1px solid #1e3a5f;
+    border-radius: 12px;
+    padding: 1rem 1.2rem;
+    text-align: center;
     margin-bottom: 0.5rem;
-    transition: border-color .2s;
 }
-.kpi-card:hover { border-color: #242d42; }
-.kpi-label { font-size: 0.62rem; color: #6b7a99; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; margin-bottom: 6px; }
-.kpi-value { font-size: 1.75rem; font-weight: 800; color: #e8ecf4; line-height: 1.1; }
-.kpi-sub   { font-size: 0.67rem; color: #3d4d6a; margin-top: 4px; }
-.kpi-change-up   { font-size: 0.72rem; color: #22c55e; font-weight: 600; margin-top: 4px; }
-.kpi-change-down { font-size: 0.72rem; color: #ef4444; font-weight: 600; margin-top: 4px; }
+.kpi-label { font-size: 0.68rem; color: #667799; text-transform: uppercase; letter-spacing: 1.2px; }
+.kpi-value { font-size: 1.9rem; font-weight: 800; color: #e0e6ef; line-height: 1.2; }
+.kpi-sub   { font-size: 0.70rem; color: #445577; margin-top: 2px; }
 
-/* PILLS */
-.pill-green  { background:#0d231820; border:1px solid #22c55e40; color:#22c55e; border-radius:20px; padding:2px 10px; font-size:.75rem; font-weight:700; }
-.pill-red    { background:#200d0d20; border:1px solid #ef444440; color:#ef4444; border-radius:20px; padding:2px 10px; font-size:.75rem; font-weight:700; }
-.pill-yellow { background:#1f150520; border:1px solid #f59e0b40; color:#f59e0b; border-radius:20px; padding:2px 10px; font-size:.75rem; font-weight:700; }
-.pill-grey   { background:#11152020; border:1px solid #6b7a9940; color:#6b7a99; border-radius:20px; padding:2px 10px; font-size:.75rem; font-weight:700; }
+.pill-green  { background:#06d6a020; border:1px solid #06d6a0; color:#06d6a0; border-radius:20px; padding:2px 10px; font-size:.78rem; font-weight:700; }
+.pill-red    { background:#ef476f20; border:1px solid #ef476f; color:#ef476f; border-radius:20px; padding:2px 10px; font-size:.78rem; font-weight:700; }
+.pill-yellow { background:#ffd16620; border:1px solid #ffd166; color:#ffd166; border-radius:20px; padding:2px 10px; font-size:.78rem; font-weight:700; }
+.pill-grey   { background:#adb5bd20; border:1px solid #adb5bd; color:#adb5bd; border-radius:20px; padding:2px 10px; font-size:.78rem; font-weight:700; }
 
-/* REC BOXES */
-.rec-box-green  { background:#0d2318; border-left:3px solid #22c55e; padding:8px 12px; border-radius:0 8px 8px 0; color:#22c55e; margin:8px 0; font-size:.82rem; }
-.rec-box-red    { background:#200d0d; border-left:3px solid #ef4444; padding:8px 12px; border-radius:0 8px 8px 0; color:#ef4444; margin:8px 0; font-size:.82rem; }
-.rec-box-yellow { background:#1f1505; border-left:3px solid #f59e0b; padding:8px 12px; border-radius:0 8px 8px 0; color:#f59e0b; margin:8px 0; font-size:.82rem; }
-.rec-box-grey   { background:#111520; border-left:3px solid #6b7a99; padding:8px 12px; border-radius:0 8px 8px 0; color:#6b7a99; margin:8px 0; font-size:.82rem; }
+.rec-box-green  { background:#06d6a012; border-left:4px solid #06d6a0; padding:8px 12px; border-radius:0 8px 8px 0; color:#06d6a0; margin:8px 0; }
+.rec-box-red    { background:#ef476f12; border-left:4px solid #ef476f; padding:8px 12px; border-radius:0 8px 8px 0; color:#ef476f; margin:8px 0; }
+.rec-box-yellow { background:#ffd16612; border-left:4px solid #ffd166; padding:8px 12px; border-radius:0 8px 8px 0; color:#ffd166; margin:8px 0; }
+.rec-box-grey   { background:#adb5bd12; border-left:4px solid #adb5bd; padding:8px 12px; border-radius:0 8px 8px 0; color:#adb5bd; margin:8px 0; }
 
-/* NEWS */
-.news-item { border-left:2px solid #1c2333; padding:5px 12px; margin:5px 0; font-size:.80rem; color:#6b7a99; }
-.news-item a { color: #3b82f6 !important; }
+.news-item { border-left:2px solid #1a4a7a; padding:5px 10px; margin:5px 0; font-size:.82rem; color:#99b0cc; }
 
-/* WIN BAR */
-.win-bar-wrap { background:#111520; border-radius:20px; height:6px; width:100%; margin:4px 0; }
-.win-bar-fill { border-radius:20px; height:6px; }
+.win-bar-wrap { background:#1a2a3a; border-radius:20px; height:10px; width:100%; margin:4px 0; }
+.win-bar-fill { border-radius:20px; height:10px; }
 
-/* SIDEBAR */
-[data-testid="stSidebar"] { background-color: #0d1017 !important; border-right:1px solid #1c2333 !important; }
-[data-testid="stSidebar"] * { color: #e8ecf4 !important; }
-
-/* HEADINGS */
-h1,h2,h3,h4 { color:#e8ecf4 !important; font-family:'Inter',sans-serif !important; }
-h1 { font-size:1.35rem !important; font-weight:700 !important; }
-
-/* TABS */
-.stTabs [data-baseweb="tab-list"] { background-color:#0d1017 !important; border-bottom:1px solid #1c2333 !important; gap:2px; }
-.stTabs [data-baseweb="tab"] { background-color:transparent !important; color:#6b7a99 !important; border-radius:6px 6px 0 0 !important; font-size:.78rem !important; font-weight:500 !important; border-bottom:2px solid transparent !important; padding:8px 14px !important; }
-.stTabs [aria-selected="true"] { color:#e8ecf4 !important; border-bottom:2px solid #22c55e !important; background-color:transparent !important; }
-
-/* EXPANDER */
-.streamlit-expanderHeader { background:#0d1017 !important; border:1px solid #1c2333 !important; border-radius:8px !important; color:#e8ecf4 !important; font-size:.82rem !important; }
-.streamlit-expanderContent { background:#0d1017 !important; border:1px solid #1c2333 !important; border-top:none !important; border-radius:0 0 8px 8px !important; }
-
-/* SELECTBOX / INPUTS */
-.stSelectbox > div > div { background:#0d1017 !important; border-color:#1c2333 !important; color:#e8ecf4 !important; }
-.stSlider > div { color:#e8ecf4 !important; }
-
-/* METRIC DELTA */
-[data-testid="stMetricDelta"] { font-size:.72rem !important; }
-
-/* LIVE BADGE */
-.live-badge {
-    display:inline-flex; align-items:center; gap:6px;
-    background:#0d1017; border:1px solid #1c2333; border-radius:6px;
-    padding:4px 10px; font-size:.70rem; color:#6b7a99;
-}
-.live-dot { width:6px; height:6px; border-radius:50%; background:#22c55e; display:inline-block; animation:blink 1.5s ease-in-out infinite; }
-@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
-
-/* DIVIDER */
-hr { border-color: #1c2333 !important; }
+[data-testid="stSidebar"] { background-color: #0d1b2a !important; border-right:1px solid #1a2a3a; }
+h1,h2,h3,h4 { color:#e0e6ef; }
+.stTabs [data-baseweb="tab"] { background-color:#0d1b2a; color:#667799; border-radius:8px 8px 0 0; }
+.stTabs [aria-selected="true"] { background-color:#1a2a3a !important; color:#e0e6ef !important; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -138,6 +92,13 @@ REC_PILLS = {
     "BUY NO":  ('<span class="pill-red">🔴 BUY NO</span>',   "rec-box-red"),
     "WATCH":   ('<span class="pill-yellow">🟡 WATCH</span>',  "rec-box-yellow"),
     "AVOID":   ('<span class="pill-grey">⚫ AVOID</span>',    "rec-box-grey"),
+}
+# Plain labels for st.expander (no HTML allowed in labels)
+REC_LABEL = {
+    "BUY YES": "🟢 BUY YES",
+    "BUY NO":  "🔴 BUY NO",
+    "WATCH":   "🟡 WATCH",
+    "AVOID":   "⚫ AVOID",
 }
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -171,11 +132,16 @@ def extract_keywords(question, n=5):
     filtered = [w for w in words if w.lower() not in stopwords]
     return " ".join(filtered[:n])
 
+def fmt_vol(v):
+    if v >= 1e6: return f"${v/1e6:.1f}m"
+    if v >= 1e3: return f"${v/1e3:.0f}k"
+    return f"${v:.0f}"
+
 def win_rate_color(p):
-    if p >= 65: return "#22c55e"
-    elif p >= 50: return "#f59e0b"
-    elif p >= 35: return "#f97316"
-    return "#ef4444"
+    if p >= 65: return "#06d6a0"
+    elif p >= 50: return "#ffd166"
+    elif p >= 35: return "#ff9f43"
+    return "#ef476f"
 
 def quality_star(s):
     if s >= 80: return "⭐⭐⭐"
@@ -349,7 +315,7 @@ def load_all_markets():
 # ─────────────────────────────────────────────────────────────────────────────
 #  CHARTS
 # ─────────────────────────────────────────────────────────────────────────────
-BG, PLOT_BG, GRID = "#0d1017", "#111520", "#1c2333"
+BG, PLOT_BG, GRID = "#0d1b2a", "#111c2e", "#1a2a3a"
 
 def base_layout(title, h=300):
     return dict(
@@ -438,13 +404,14 @@ def chart_winrate_distribution(df):
 # ─────────────────────────────────────────────────────────────────────────────
 def render_market(row):
     pill_html, box_cls = REC_PILLS.get(row["recommendation"], REC_PILLS["AVOID"])
+    rec_label = REC_LABEL.get(row["recommendation"], "⚫ AVOID")
     wr = row["win_rate"] or 50
     wr_bar_color = win_rate_color(wr)
     wr_pct = min(100, max(0, wr))
 
     label = (
-        f"{pill_html}  **{row['question'][:80]}{'…' if len(row['question'])>80 else ''}**  "
-        f"— YES {row['yes_prob']:.0f}%  ·  Vol ${row['volume24h']:,.0f}  ·  {row['category']}"
+        f"{rec_label}  ·  {row['question'][:80]}{'…' if len(row['question'])>80 else ''}  "
+        f"— YES {row['yes_prob']:.0f}%  ·  {fmt_vol(row['volume24h'])}  ·  {row['category']}"
     )
     with st.expander(label, expanded=False):
 

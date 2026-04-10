@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+<!-- ── iOS PWA (obrigatório para funcionar como app) ── -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Polymarket">
+
+<!-- ── PWA Manifest ── -->
+<link rel="manifest" href="manifest.json">
+
+<!-- ── Ícone home screen iOS ── -->
+<link rel="apple-touch-icon" href="icon.png">
+
+<title>Polymarket Intelligence</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{
+    width:100%;height:100%;
+    background:#0a1628;
+    font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Roboto,sans-serif;
+    overflow:hidden;
+    /* suporte ao notch/dynamic island */
+    padding-top:env(safe-area-inset-top);
+    padding-bottom:env(safe-area-inset-bottom);
+  }
+
+  /* SPLASH SCREEN */
+  #splash{
+    position:fixed;inset:0;
+    background:linear-gradient(160deg,#0a1628 0%,#0d2040 60%,#0a1a30 100%);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:20px;z-index:10;transition:opacity .5s ease;
+  }
+  #splash.hidden{opacity:0;pointer-events:none}
+
+  .logo-wrap{
+    width:96px;height:96px;border-radius:22px;
+    background:linear-gradient(135deg,#118ab2,#06d6a0);
+    display:flex;align-items:center;justify-content:center;
+    font-size:48px;
+    box-shadow:0 8px 32px #118ab250;
+    animation:pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse{0%,100%{box-shadow:0 8px 32px #118ab240}50%{box-shadow:0 8px 48px #118ab270}}
+
+  .app-name{font-size:1.6rem;font-weight:800;color:#e0e6ef;letter-spacing:-.5px}
+  .app-sub{font-size:.82rem;color:#556688;text-align:center;max-width:220px;line-height:1.5}
+
+  /* LOADING BAR */
+  .loading-wrap{width:180px;height:3px;background:#1a2a3a;border-radius:3px;margin-top:8px;overflow:hidden}
+  .loading-bar{height:3px;background:linear-gradient(90deg,#118ab2,#06d6a0);border-radius:3px;animation:load 2s ease-in-out forwards}
+  @keyframes load{from{width:0}to{width:100%}}
+
+  .loading-text{font-size:.72rem;color:#334466;margin-top:4px}
+
+  /* IFRAME FULL SCREEN */
+  #frame{
+    position:fixed;inset:0;
+    width:100%;height:100%;
+    border:none;
+    background:#0a1628;
+    display:none;
+  }
+
+  /* FALLBACK BUTTON (se o iframe for bloqueado) */
+  #fallback{
+    display:none;
+    flex-direction:column;align-items:center;gap:16px;
+    position:fixed;inset:0;
+    background:#0a1628;
+    justify-content:center;padding:32px;
+    text-align:center;
+  }
+  #fallback .logo-wrap{animation:none;box-shadow:0 8px 32px #118ab250}
+  #fallback h2{color:#e0e6ef;font-size:1.3rem}
+  #fallback p{color:#556688;font-size:.82rem;max-width:260px;line-height:1.6}
+  .open-btn{
+    background:linear-gradient(135deg,#118ab2,#06d6a0);
+    color:#fff;border:none;border-radius:14px;
+    padding:14px 32px;font-size:1rem;font-weight:700;
+    cursor:pointer;margin-top:8px;
+    box-shadow:0 4px 20px #118ab240;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .open-btn:active{transform:scale(.97)}
+</style>
+</head>
+<body>
+
+<!-- SPLASH -->
+<div id="splash">
+  <div class="logo-wrap">📈</div>
+  <div>
+    <div class="app-name">Polymarket</div>
+    <div class="app-sub">Intelligence Dashboard</div>
+  </div>
+  <div>
+    <div class="loading-wrap"><div class="loading-bar"></div></div>
+    <div class="loading-text">A carregar dados em tempo real…</div>
+  </div>
+</div>
+
+<!-- IFRAME (carrega a Streamlit app) -->
+<iframe id="frame"
+  allow="fullscreen"
+  sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-top-navigation">
+</iframe>
+
+<!-- FALLBACK (se o iframe for bloqueado pelo browser) -->
+<div id="fallback">
+  <div class="logo-wrap">📈</div>
+  <h2>Polymarket Intelligence</h2>
+  <p>O teu dashboard de apostas em tempo real. Toca para abrir.</p>
+  <button class="open-btn" onclick="openDirect()">Abrir Dashboard</button>
+  <div style="font-size:.7rem;color:#223344;margin-top:8px">Dados em tempo real · Análise IA · Notícias</div>
+</div>
+
+<script>
+  // ── SUBSTITUI ESTE URL pelo teu link do Streamlit ──────────────────────────
+  const STREAMLIT_URL = 'https://polymarket-rique.streamlit.app';
+  // ──────────────────────────────────────────────────────────────────────────
+
+  const splash  = document.getElementById('splash');
+  const frame   = document.getElementById('frame');
+  const fallback= document.getElementById('fallback');
+
+  function showFallback() {
+    splash.classList.add('hidden');
+    setTimeout(()=>{ splash.style.display='none'; fallback.style.display='flex'; }, 500);
+  }
+
+  function openDirect() {
+    window.location.href = STREAMLIT_URL;
+  }
+
+  function launchApp() {
+    frame.src = STREAMLIT_URL;
+
+    // Timeout: se o iframe não carregar em 12s, mostra fallback
+    const timeout = setTimeout(showFallback, 12000);
+
+    frame.onload = () => {
+      clearTimeout(timeout);
+      frame.style.display = 'block';
+      splash.classList.add('hidden');
+      setTimeout(()=>{ splash.style.display='none'; }, 500);
+    };
+
+    frame.onerror = () => {
+      clearTimeout(timeout);
+      showFallback();
+    };
+  }
+
+  // Gerar ícone dinamicamente para apple-touch-icon
+  function generateIcon() {
+    try {
+      const c = document.createElement('canvas');
+      c.width = c.height = 180;
+      const ctx = c.getContext('2d');
+      const g = ctx.createLinearGradient(0,0,180,180);
+      g.addColorStop(0,'#118ab2'); g.addColorStop(1,'#06d6a0');
+      ctx.fillStyle = g;
+      ctx.roundRect(0,0,180,180,36);
+      ctx.fill();
+      ctx.font = 'bold 100px serif';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText('📈', 90, 95);
+      const link = document.querySelector('link[rel="apple-touch-icon"]');
+      if(link) link.href = c.toDataURL('image/png');
+    } catch(e) {}
+  }
+
+  // Gerar manifest inline com URL correto
+  function injectManifest() {
+    try {
+      const manifest = {
+        name: 'Polymarket Intelligence',
+        short_name: 'Polymarket',
+        start_url: window.location.href,
+        display: 'standalone',
+        background_color: '#0a1628',
+        theme_color: '#118ab2',
+        orientation: 'portrait-primary',
+        icons: [{src: 'icon.png', sizes:'192x192',type:'image/png'},
+                {src: 'icon.png', sizes:'512x512',type:'image/png'}]
+      };
+      const blob = new Blob([JSON.stringify(manifest)],{type:'application/json'});
+      const url  = URL.createObjectURL(blob);
+      const link = document.querySelector('link[rel="manifest"]');
+      if(link) link.href = url;
+    } catch(e) {}
+  }
+
+  generateIcon();
+  injectManifest();
+
+  // Iniciar após splash (2s)
+  setTimeout(launchApp, 2000);
+</script>
+</body>
+</html>

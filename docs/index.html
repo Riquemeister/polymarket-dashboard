@@ -8,6 +8,7 @@
 <meta name="apple-mobile-web-app-title" content="Polymarket">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon.png">
+<title>PolyDash - by Riquemeister</title>
 <style>
   *{margin:0;padding:0;box-sizing:border-box}
   html,body{
@@ -59,17 +60,21 @@
     padding:15px 40px;font-size:1rem;font-weight:700;
     cursor:pointer;box-shadow:0 4px 24px #118ab250;
     -webkit-tap-highlight-color:transparent;
-    display:none;margin-top:8px;
+    display:none;margin-top:12px;animation:fadeIn .4s ease forwards;
   }
   .open-btn:active{transform:scale(.97);transition:transform .1s}
 
+  @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
   .version{position:fixed;bottom:calc(16px + env(safe-area-inset-bottom));
     font-size:.62rem;color:#1e2a3a;text-align:center;width:100%}
 </style>
 </head>
 <body>
 <div id="splash">
-  <div class="logo-wrap"><img src="icon.png" style="width:72px;height:72px;border-radius:16px" alt="Polymarket"></div>
+  <div class="logo-wrap">📈</div>
+  <div>
+    <div class="app-name">Polymarket</div>
+    <div class="app-sub">Intelligence Dashboard<br>Dados · Análise IA · Notícias</div>
   </div>
   <div style="text-align:center">
     <div class="progress-wrap"><div class="progress-bar" id="bar"></div></div>
@@ -78,7 +83,7 @@
   <button class="open-btn" id="btn" onclick="goNow()">Abrir Dashboard →</button>
 </div>
 
-<div class="version">Polymarket Intelligence v1.0</div>
+<div class="version">PolyDash v1.0</div>
 
 <script>
   // ─── URL DO TEU STREAMLIT (substitui pelo teu link real) ─────────────────
@@ -90,11 +95,11 @@
   const btn = document.getElementById('btn');
 
   const steps = [
-    [15,  300, 'A verificar ligação…'],
-    [40,  700, 'A carregar mercados…'],
-    [70, 1200, 'A preparar análise IA…'],
-    [90, 1700, 'Quase pronto…'],
-    [100,2000, 'A abrir dashboard! ✓'],
+    [15,  400, 'A verificar ligação…'],
+    [35,  900, 'A carregar mercados…'],
+    [60, 1700, 'A preparar análise IA…'],
+    [80, 2800, 'Quase pronto…'],
+    [100,3800, 'Pronto! Abre o dashboard ↓'],
   ];
 
   steps.forEach(([pct, delay, text]) => {
@@ -104,17 +109,33 @@
     }, delay);
   });
 
-  // Mostrar botão manual após 2.5s (fallback)
-  setTimeout(() => { btn.style.display = 'block'; }, 2500);
+  // Mostrar botão após 1.2s
+  setTimeout(() => { btn.style.display = 'block'; }, 1200);
 
-  // Redirect automático após 2.2s
-  setTimeout(goNow, 2200);
+  // Redirect automático após 4.5s (tempo suficiente para ver tudo)
+  setTimeout(goNow, 4500);
 
   function goNow() {
     window.location.href = APP_URL;
   }
 
-  // Ícone já embutido como base64 no <head>
+  // Gerar ícone via canvas para apple-touch-icon
+  try {
+    const c = document.createElement('canvas');
+    c.width = c.height = 180;
+    const ctx = c.getContext('2d');
+    const g = ctx.createLinearGradient(0,0,180,180);
+    g.addColorStop(0,'#118ab2'); g.addColorStop(1,'#06d6a0');
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.roundRect(0,0,180,180,40);
+    ctx.fill();
+    ctx.font = '90px serif';
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText('📈',90,95);
+    const link = document.querySelector('link[rel="apple-touch-icon"]');
+    if(link) link.href = c.toDataURL('image/png');
+  } catch(e){}
 </script>
 </body>
 </html>

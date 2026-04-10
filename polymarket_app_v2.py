@@ -266,7 +266,7 @@ def generate_recommendation(yes_p, spread, vol24, liq, p1d, p1w):
 #  DATA FETCHING
 # ─────────────────────────────────────────────────────────────────────────────
 @st.cache_data(ttl=300, show_spinner=False)
-def fetch_markets_raw(limit=500, max_pages=4):
+def fetch_markets_raw(limit=500, max_pages=1):
     """Busca até max_pages*limit mercados com paginação."""
     all_markets = []
     seen_ids = set()

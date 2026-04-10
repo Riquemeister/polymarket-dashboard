@@ -1,0 +1,8 @@
+# Polymarket Intelligence Dashboard - Dependências
+# Instalar com: pip install -r requirements.txt
+
+streamlit>=1.32.0
+plotly>=5.20.0
+requests>=2.31.0
+pandas>=2.0.0
+numpy>=1.24.0
